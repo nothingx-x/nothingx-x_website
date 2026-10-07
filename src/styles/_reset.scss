@@ -1,0 +1,53 @@
+@import 'variables';
+
+// ─── Global Box Sizing Reset ────────────────────────────
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: $font-body;
+  color: $color-text;
+  // direction: rtl;
+  font-size: 62.5%; // 1rem = 10px
+
+  // Expose SCSS variables as CSS custom properties for component use
+  --font-body: #{$font-body};
+  --font-mono: #{$font-mono};
+  --color-bg-0: #{$color-bg-0};
+  --color-bg-1: #{$color-bg-1};
+  --color-bg-2: #{$color-bg-2};
+  --color-theme-1: #{$color-theme-1};
+  --color-theme-2: #{$color-theme-2};
+  --color-text: #{$color-text};
+  --column-width: #{$column-width};
+  --column-margin-top: #{$column-margin-top};
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-attachment: fixed;
+  background-color: $color-bg-1;
+  background-size: 100vw 100vh;
+  transition: all 400ms;
+}
+
+// body.dark-mode {
+//   background-color: $color-bg-1-dark;
+//   color: $color-text-dark;
+// }
+
+input,
+button {
+  font-size: inherit;
+  font-family: inherit;
+}
+
+button:focus:not(:focus-visible) {
+  outline: none;
+}

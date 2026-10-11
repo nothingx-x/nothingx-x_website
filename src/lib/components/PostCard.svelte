@@ -7,7 +7,9 @@
     slug: string;
     title: string;
     category: Category;
-    thumbnailImageRaw?: Uint8Array | null;
+    /** True when a thumbnail is stored; the image itself loads from the route. */
+    hasThumbnail?: boolean;
+    published?: boolean;
     views: number;
     likes: number;
     createdAt: Date;
@@ -32,11 +34,9 @@
 
   const excerpt = $derived(excerptText ?? "");
 
-  const thumbnail = $derived(
-    post.thumbnailImageRaw
-      ? URL.createObjectURL(new Blob([post.thumbnailImageRaw as BlobPart]))
-      : undefined,
-  );
+  // fetched by the browser from the thumbnail route — never inlined as bytes,
+  // which would put every image in the list page's payload
+  const thumbnail = $derived(post.hasThumbnail ? `/blog/${post.slug}/thumbnail` : undefined);
 </script>
 
 <Card
@@ -48,6 +48,9 @@
 >
   {#snippet badge()}
     <span class="post-card__category">{post.category.toLowerCase()}</span>
+    {#if post.published === false}
+      <span class="post-card__draft">Draft</span>
+    {/if}
   {/snippet}
 
   <p>{excerpt}</p>
@@ -81,6 +84,18 @@
       color: $color-theme-1;
     }
 
+    &__draft {
+      padding: 0.2rem 0.6rem;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: $color-text;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
+    }
+
     &__meta {
       display: flex;
       align-items: center;
@@ -90,7 +105,6 @@
     }
 
     &__date {
-      font-family: $font-mono;
     }
 
     &__stats {

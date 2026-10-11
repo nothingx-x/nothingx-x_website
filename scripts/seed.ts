@@ -24,21 +24,21 @@ if (!url) {
   process.exit(1);
 }
 
-const prisma = new PrismaClient({ adapter: new PrismaPg(url) });
+// const prisma = new PrismaClient({ adapter: new PrismaPg(url) });
 const hashedPassword = await hashPassword(password);
+console.log(hashedPassword)
+// const user = await prisma.user.upsert({
+//   where: { email: email.trim().toLowerCase() },
+//   update: { name, hashedPassword, role: role as "ADMIN" | "MEMBER" },
+//   create: {
+//     email: email.trim().toLowerCase(),
+//     name,
+//     hashedPassword,
+//     role: role as "ADMIN" | "MEMBER",
+//   },
+//   select: { id: true, email: true, name: true, role: true },
+// });
 
-const user = await prisma.user.upsert({
-  where: { email: email.trim().toLowerCase() },
-  update: { name, hashedPassword, role: role as "ADMIN" | "MEMBER" },
-  create: {
-    email: email.trim().toLowerCase(),
-    name,
-    hashedPassword,
-    role: role as "ADMIN" | "MEMBER",
-  },
-  select: { id: true, email: true, name: true, role: true },
-});
+// console.log(`seeded ${user.email} (${user.name}) as ${user.role}, id=${user.id}`);
 
-console.log(`seeded ${user.email} (${user.name}) as ${user.role}, id=${user.id}`);
-
-await prisma.$disconnect();
+// await prisma.$disconnect();

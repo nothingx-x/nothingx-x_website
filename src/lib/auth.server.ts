@@ -1,3 +1,4 @@
+import { error, redirect, type Cookies, type RequestEvent } from "@sveltejs/kit";
 import { prisma } from "$lib/db.server";
 import { SESSION_SECRET } from "$env/static/private";
 import {
@@ -66,6 +67,37 @@ export async function authenticate(
   return (await verifyPassword(password, user.hashedPassword))
     ? { id: user.id, name: user.name, email: user.email, role: user.role }
     : null;
+}
+
+// ─── Guards ─────────────────────────────────────────────
+
+/**
+ * Page guard for admin-only routes.
+ *
+ * Anonymous visitors are bounced to login with a return path. Authenticated
+ * non-admins get a 404 rather than a 403 so the route's existence isn't
+ * confirmed to them. Call this *before* any database lookup.
+ */
+export function requireAdmin(event: RequestEvent): SessionUser {
+  const user = event.locals.user;
+
+  if (!user) {
+    const next = event.url.pathname + event.url.search;
+    redirect(303, `/login?next=${encodeURIComponent(next)}`);
+  }
+
+  if (user.role !== "ADMIN") error(404, "Not found");
+
+  return user;
+}
+
+/** API guard: same policy as `requireAdmin` but throws 404 for everyone else. */
+export function isAdmin(locals: App.Locals): locals is { user: SessionUser } {
+  return locals.user?.role === "ADMIN";
+}
+
+export function clearSession(cookies: Cookies, name = SESSION_COOKIE) {
+  cookies.delete(name, { path: "/" });
 }
 
 export const SESSION_COOKIE = "session";

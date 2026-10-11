@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import Button from "$lib/components/Button.svelte";
   import { Book, Code, Send, User } from "@lucide/svelte";
+  import character from "$lib/images/character.png?enhanced"
 
   interface IProject {
     name: string;
@@ -60,8 +61,8 @@
   <meta name="description" content="" />
 </svelte:head>
 
-<!-- <div></div> -->
 <section class="hero">
+  <enhanced:img class="hero__image" src={character} alt="Nothingx-x"/>
   <h1 class="hero__title">
     Hello, its <span>Nothingx-x</span>
   </h1>
@@ -171,6 +172,15 @@
     flex: 0.6;
     position: relative;
 
+    &__image {
+      aspect-ratio: 16 / 9;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      border-radius: 12px;
+      overflow: hidden;
+    }
     &__title span {
       color: $color-theme-1;
     }

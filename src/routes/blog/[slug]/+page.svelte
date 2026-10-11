@@ -1,54 +1,72 @@
 <script lang="ts">
-  import { ArrowRight, Calendar, Eye, Heart, User } from "@lucide/svelte";
-  import type { PageProps } from "./$types";
+    import {ArrowRight, Calendar, Eye, Heart, Pencil, User} from "@lucide/svelte";
+    import type {PageProps} from "./$types";
 
-  let { data }: PageProps = $props();
+    let {data}: PageProps = $props();
 
-  const formattedDate = $derived(
-    new Intl.DateTimeFormat("fa", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    }).format(new Date(data.post.createdAt)),
-  );
+    const formattedDate = $derived(
+        new Intl.DateTimeFormat("fa", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        }).format(new Date(data.post.createdAt)),
+    );
+
+    const thumbnail = $derived(data.hasThumbnail ? `/blog/${data.post.slug}/thumbnail` : undefined);
 </script>
 
 <svelte:head>
-  <title>{data.post.title} · nothingx-x</title>
-  <meta name="description" content={data.post.excerpt} />
+    <title>{data.post.title} · nothingx-x</title>
+    <meta name="description" content={data.post.excerpt}/>
 </svelte:head>
 
 <article class="post">
-  <header class="post__header">
-    <a class="post__back" href="/blog">
-      <ArrowRight size={16} />
-      پست ها
-    </a>
+    <header class="post__header">
+        <div class="post__top">
+            <a class="post__back" href="/blog">
+                <ArrowRight size={16}/>
+                پست ها
+            </a>
 
-    <span class="post__category">{data.post.category.toLowerCase()}</span>
+            {#if data.isAdmin}
+                <a class="post__edit" href="/blog/{data.post.slug}/edit">
+                    <Pencil size={15}/>
+                    ویرایش
+                </a>
+            {/if}
+        </div>
 
-    <h1 class="post__title">{data.post.title}</h1>
+        <span class="post__category">{data.post.category.toLowerCase()}</span>
 
-    <div class="post__meta">
+        {#if !data.post.published}
+            <span class="post__draft">پیش‌نویس — فقط برای مدیران</span>
+        {/if}
+
+        <h1 class="post__title">{data.post.title}</h1>
+
+        <div class="post__meta">
       <span class="post__meta-item">
-        <User size={15} />
-        {data.post.authorName}
+        <User size={15}/>
+          {data.post.authorName}
       </span>
-      <span class="post__meta-item">
-        <Calendar size={15} />
+            <span class="post__meta-item">
+        <Calendar size={15}/>
         <time datetime={new Date(data.post.createdAt).toISOString()}>
           {formattedDate}
         </time>
       </span>
-      <span class="post__meta-item"><Eye size={15} /> {data.post.views}</span>
-      <span class="post__meta-item"><Heart size={15} /> {data.post.likes}</span>
-    </div>
-  </header>
+            <span class="post__meta-item"><Eye size={15}/> {data.post.views}</span>
+            <span class="post__meta-item"><Heart size={15}/> {data.post.likes}</span>
+        </div>
+    </header>
 
-  <hr class="post__rule" />
+    <hr class="post__rule"/>
 
-  <!-- markdown rendered and sanitized in markdown.server.ts -->
-  <div class="prose">{@html data.post.html}</div>
+    {#if thumbnail}
+        <img src={thumbnail} alt={`${data.post.title} thumbnail`}/>
+    {/if}
+    <!-- markdown rendered and sanitized in markdown.server.ts -->
+    <div class="prose">{@html data.post.html}</div>
 </article>
 
 <style lang="scss">
@@ -62,12 +80,53 @@
     padding: 1rem 0 3rem;
     direction: rtl;
 
+    img {
+      width: 100%
+    }
+
     &__header {
       display: flex;
       flex-direction: column;
       align-items: flex-start;
       gap: 0.7rem;
       padding-bottom: 1.4rem;
+    }
+
+    &__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      width: 100%;
+    }
+
+    &__edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.8rem;
+      font-size: 1.1rem;
+      color: $color-theme-1;
+      border: 1px solid rgba($color-theme-1, 0.35);
+      border-radius: 999px;
+      text-decoration: none;
+      transition: background 200ms;
+
+      &:hover {
+        background: rgba($color-theme-1, 0.12);
+        text-decoration: none;
+      }
+    }
+
+    &__draft {
+      padding: 0.25rem 0.8rem;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: $color-text;
+      background-color: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 999px;
     }
 
     &__back {
@@ -117,7 +176,6 @@
       flex-wrap: wrap;
       align-items: center;
       gap: 0.6rem 1.2rem;
-      font-family: $font-mono;
       font-size: 1.1rem;
       opacity: 0.65;
     }

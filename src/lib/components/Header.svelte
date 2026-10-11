@@ -2,7 +2,7 @@
     import logo from "$lib/images/profile.png?enhanced";
     import {goto} from "$app/navigation";
     import Button from "$lib/components/Button.svelte";
-    import {LogIn, LogOut, Menu, Moon, Sun} from "@lucide/svelte";
+    import {LogIn, LogOut, Menu, Moon, PenLine, Sun} from "@lucide/svelte";
     import type {SessionUser} from "$lib/auth.server";
 
     interface IRoute {
@@ -42,6 +42,12 @@
     </nav>
     <div class="header__btns">
         {#if user}
+            {#if user.role === "ADMIN"}
+                <a class="header__new" href="/blog/new">
+                    <PenLine/>
+                    New
+                </a>
+            {/if}
             <form method="POST" action="/logout">
                 <Button size="lg" class="header__btns-btn-auth" variant="secondary">
                     {#snippet icon()}
@@ -125,6 +131,32 @@
       }
     }
 
+    &__new {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4em;
+      padding: 0.8rem 1.6rem;
+      font-family: "Vazirmatn", sans-serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: black;
+      background-color: $color-theme-1;
+      border: 2px solid black;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: transform 200ms;
+
+      &:hover {
+        transform: translateY(-2px);
+        text-decoration: none;
+      }
+
+      :global(svg) {
+        width: 1.3em;
+        height: 1.3em;
+      }
+    }
+
     &__nav {
       display: none;
       @media (min-width: $breakpoint-md) {
@@ -141,8 +173,8 @@
     }
 
     &__nav-list :nth-child(3) &__nav-link,
-    &__nav-list :nth-child(4) &__nav-link{
-      color: darken($color-theme-2,10%);
+    &__nav-list :nth-child(4) &__nav-link {
+      color: darken($color-theme-2, 10%);
       font-size: 1.2rem;
     }
 

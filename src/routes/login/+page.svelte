@@ -95,6 +95,11 @@
     margin: 0 auto;
     padding: 3rem 0;
 
+    @media (min-width: $breakpoint-lg) {
+      max-width: 80rem;
+      padding: 23rem 0;
+    }
+
     &__header {
       text-align: center;
       margin-bottom: 2rem;
@@ -116,7 +121,8 @@
       flex-direction: column;
       gap: 1.2rem;
       width: 100%;
-      padding: 1.6rem;
+      justify-content: center;
+      padding: 1.6em;
       background-color: $color-bg-2;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 1.2rem;

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { PenLine, Plus } from "@lucide/svelte";
   import PostCard from "$lib/components/PostCard.svelte";
   import type { PageProps } from "./$types";
 
@@ -12,11 +13,22 @@
 
 <section class="blog">
   <header class="blog__header">
-    <h1 class="blog__title">Blog</h1>
-    <span class="blog__count">
-      {data.posts.length}
-      {data.posts.length === 1 ? "post" : "posts"}
-    </span>
+    <div>
+      <h1 class="blog__title">Blog</h1>
+      <span class="blog__count">
+        {data.posts.length}
+        {data.posts.length === 1 ? "post" : "posts"}
+      </span>
+    </div>
+
+    {#if data.isAdmin}
+      <div class="blog__admin">
+        <a class="blog__new" href="/blog/new">
+          <Plus size={18} />
+          New post
+        </a>
+      </div>
+    {/if}
   </header>
 
   {#if data.posts.length === 0}
@@ -42,9 +54,30 @@
 
     &__header {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
       gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    &__new {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.6rem 1.2rem;
+      font-family: $font-body;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: black;
+      background-color: $color-theme-1;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: filter 200ms;
+
+      &:hover {
+        filter: brightness(1.1);
+        text-decoration: none;
+      }
     }
 
     &__title {

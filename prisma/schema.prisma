@@ -36,6 +36,7 @@ model Post {
   views             Int      @default(0)
   likes             Int      @default(0)
   category          Category @default(NOTES)
+  published         Boolean  @default(false)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now()) @updatedAt
 
@@ -43,6 +44,7 @@ model Post {
 
   @@index([authorId])
   @@index([category])
+  @@index([published])
   @@index([createdAt])
 }
 

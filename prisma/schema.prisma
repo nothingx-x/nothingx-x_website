@@ -6,7 +6,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -17,9 +16,51 @@ model User {
   role           Role     @default(MEMBER)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now())
+
+  posts Post[]
 }
 
 enum Role {
   MEMBER
   ADMIN
+}
+
+model Post {
+  id                Int      @id @default(autoincrement())
+  slug              String   @unique
+  thumbnailImageRaw Bytes?
+  title             String
+  contentMarkdown   String
+  author            User     @relation(fields: [authorId], references: [id])
+  authorId          Int
+  views             Int      @default(0)
+  likes             Int      @default(0)
+  category          Category @default(NOTES)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+
+  postViews PostView[]
+
+  @@index([authorId])
+  @@index([category])
+  @@index([createdAt])
+}
+
+model PostView {
+  id        Int      @id @default(autoincrement())
+  type      String // guest, user
+  ipAddress String?
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
+  @@index([createdAt])
+}
+
+enum Category {
+  BLOG
+  PROJECTS
+  NOTES
 }

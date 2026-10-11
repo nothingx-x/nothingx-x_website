@@ -4,12 +4,13 @@
   import Footer from "$lib/components/Footer.svelte";
   import Button from "$lib/components/Button.svelte";
   import { X } from "@lucide/svelte";
+  import type { LayoutProps } from "./$types";
 
-  let { children } = $props();
+  let { data, children }: LayoutProps = $props();
 </script>
 
 <div class="app">
-  <Header />
+  <Header user={data.user} />
 
   <main>
     {@render children()}

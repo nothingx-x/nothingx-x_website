@@ -1,0 +1,109 @@
+@import 'variables';
+
+// Styles for server-rendered markdown. Content is injected with `{@html}`,
+// so this styles the `.prose` wrapper's children via :global.
+.prose {
+  font-family: $font-body;
+  font-size: 1.5rem;
+  line-height: 1.8;
+  color: $color-text;
+
+  :global(h1),
+  :global(h2),
+  :global(h3),
+  :global(h4) {
+    font-family: $font-body;
+    color: white;
+    margin: 1.8em 0 0.6em;
+    text-align: left;
+  }
+
+  :global(h1) {
+    font-size: 2.4rem;
+  }
+
+  :global(h2) {
+    font-size: 2rem;
+  }
+
+  :global(h3) {
+    font-size: 1.6rem;
+  }
+
+  :global(p),
+  :global(ul),
+  :global(ol) {
+    margin: 0 0 1em;
+  }
+
+  :global(ul),
+  :global(ol) {
+    padding-left: 1.4em;
+  }
+
+  :global(li + li) {
+    margin-top: 0.3em;
+  }
+
+  :global(a) {
+    color: $color-theme-1;
+    text-decoration: underline;
+  }
+
+  :global(pre) {
+    font-family: $font-mono;
+    background-color: $color-bg-1;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 1em;
+    overflow-x: auto;
+    font-size: 1.3rem;
+    line-height: 1.6;
+  }
+
+  :global(:not(pre) > code) {
+    font-family: $font-mono;
+    font-size: 0.9em;
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 0.15em 0.4em;
+  }
+
+  :global(blockquote) {
+    margin: 0 0 1em;
+    padding: 0.4em 1em;
+    border-left: 3px solid $color-theme-1;
+    opacity: 0.85;
+  }
+
+  :global(img) {
+    max-width: 100%;
+    border-radius: 8px;
+  }
+
+  :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1em;
+  }
+
+  :global(th),
+  :global(td) {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 0.5em 0.8em;
+    text-align: left;
+  }
+
+  :global(hr) {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 2em 0;
+  }
+
+  // first heading right under the page title needs no top margin
+  > :global(h1:first-child),
+  > :global(h2:first-child),
+  > :global(h3:first-child) {
+    margin-top: 0;
+  }
+}

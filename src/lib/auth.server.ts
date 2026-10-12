@@ -1,6 +1,6 @@
 import { error, redirect, type Cookies, type RequestEvent } from "@sveltejs/kit";
-import { prisma } from "$lib/db.server";
-import { SESSION_SECRET } from "$env/static/private";
+import type { Prisma } from "$lib/db.server";
+import { env } from "$env/dynamic/private";
 import {
   dummyHash,
   hashPassword,
@@ -27,12 +27,12 @@ export interface SessionUser {
 export async function createSession(userId: number): Promise<string> {
   const expiresAt = Date.now() + SESSION_TTL_MS;
   const payload = `${userId}.${expiresAt}`;
-  return `${payload}.${await hmac(payload, SESSION_SECRET)}`;
+  return `${payload}.${await hmac(payload, env.SESSION_SECRET)}`;
 }
 
 /** Returns the user id if the cookie is valid and unexpired, else null. */
 export async function readSession(token: string): Promise<number | null> {
-  const payload = await verifySigned(token, SESSION_SECRET);
+  const payload = await verifySigned(token, env.SESSION_SECRET);
   if (!payload) return null;
 
   const [userId, expiresAt] = payload.split(".");
@@ -42,7 +42,10 @@ export async function readSession(token: string): Promise<number | null> {
   return Number.isInteger(id) ? id : null;
 }
 
-export async function getUserById(id: number): Promise<SessionUser | null> {
+export async function getUserById(
+  prisma: Prisma,
+  id: number,
+): Promise<SessionUser | null> {
   return prisma.user.findUnique({
     where: { id },
     select: { id: true, name: true, email: true, role: true },
@@ -50,6 +53,7 @@ export async function getUserById(id: number): Promise<SessionUser | null> {
 }
 
 export async function authenticate(
+  prisma: Prisma,
   email: string,
   password: string,
 ): Promise<SessionUser | null> {
@@ -92,7 +96,9 @@ export function requireAdmin(event: RequestEvent): SessionUser {
 }
 
 /** API guard: same policy as `requireAdmin` but throws 404 for everyone else. */
-export function isAdmin(locals: App.Locals): locals is { user: SessionUser } {
+export function isAdmin(
+  locals: App.Locals,
+): locals is App.Locals & { user: SessionUser } {
   return locals.user?.role === "ADMIN";
 }
 

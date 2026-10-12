@@ -13,7 +13,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-  default: async ({ request, cookies, url }) => {
+  default: async ({ request, cookies, url, locals }) => {
     const form = await request.formData();
     const email = String(form.get("email") ?? "").trim();
     const password = String(form.get("password") ?? "");
@@ -28,7 +28,7 @@ export const actions: Actions = {
       });
     }
 
-    const user = await authenticate(email, password);
+    const user = await authenticate(locals.prisma, email, password);
 
     // same message either way so we don't confirm which emails are registered
     if (!user) {

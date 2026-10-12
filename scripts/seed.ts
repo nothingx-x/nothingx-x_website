@@ -4,7 +4,6 @@
  *
  *   npm run db:seed -- admin@example.com "password" "Admin"
  */
-import "dotenv/config";
 import { PrismaClient } from "../src/generated/prisma/client.ts";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { hashPassword } from "../src/lib/crypto.ts";
@@ -18,27 +17,33 @@ if (!email || !password || !name) {
   process.exit(1);
 }
 
+// DATABASE_URL arrives from the environment. `npm run db:seed` is wrapped in
+// dotenv-cli reading .dev.vars, which is why this file deliberately does not
+// import "dotenv/config" — that would load .env and win over the injected value.
 const url = process.env.DATABASE_URL;
 if (!url) {
   console.error("DATABASE_URL is not set");
   process.exit(1);
 }
 
-// const prisma = new PrismaClient({ adapter: new PrismaPg(url) });
-const hashedPassword = await hashPassword(password);
-console.log(hashedPassword)
-// const user = await prisma.user.upsert({
-//   where: { email: email.trim().toLowerCase() },
-//   update: { name, hashedPassword, role: role as "ADMIN" | "MEMBER" },
-//   create: {
-//     email: email.trim().toLowerCase(),
-//     name,
-//     hashedPassword,
-//     role: role as "ADMIN" | "MEMBER",
-//   },
-//   select: { id: true, email: true, name: true, role: true },
-// });
+const prisma = new PrismaClient({ adapter: new PrismaPg(url) });
 
-// console.log(`seeded ${user.email} (${user.name}) as ${user.role}, id=${user.id}`);
+try {
+  const hashedPassword = await hashPassword(password);
 
-// await prisma.$disconnect();
+  const user = await prisma.user.upsert({
+    where: { email: email.trim().toLowerCase() },
+    update: { name, hashedPassword, role: role as "ADMIN" | "MEMBER" },
+    create: {
+      email: email.trim().toLowerCase(),
+      name,
+      hashedPassword,
+      role: role as "ADMIN" | "MEMBER",
+    },
+    select: { id: true, email: true, name: true, role: true },
+  });
+
+  console.log(`seeded ${user.email} (${user.name}) as ${user.role}, id=${user.id}`);
+} finally {
+  await prisma.$disconnect();
+}

@@ -1,8 +1,8 @@
-import { prisma } from "$lib/db.server";
 import { excerpt } from "$lib/markdown.server";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals }) => {
+  const prisma = locals.prisma;
   const isAdmin = locals.user?.role === "ADMIN";
 
   const posts = await prisma.post.findMany({

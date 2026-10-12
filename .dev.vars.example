@@ -1,0 +1,17 @@
+# Copy to .dev.vars for local development. Never commit the real .dev.vars.
+#
+# .dev.vars is the Cloudflare Workers format. The Prisma CLI does not read it,
+# which is why package.json wraps Prisma commands in `dotenv -e .dev.vars`.
+#
+# In production use host secrets instead:
+#   wrangler secret put DATABASE_URL
+#   wrangler secret put SESSION_SECRET
+
+# PostgreSQL connection string. Used only when no Hyperdrive binding is present,
+# so `npm run dev` keeps working against a local database.
+DATABASE_URL="postgres://postgres:postgres@localhost:5432/nothingx-x"
+
+# Signs session cookies. Generate with:
+#   node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+# Changing this invalidates every existing session.
+SESSION_SECRET="replace-me-with-32-random-bytes"

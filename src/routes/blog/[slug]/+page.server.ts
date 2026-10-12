@@ -1,9 +1,9 @@
 import { error } from "@sveltejs/kit";
-import { prisma } from "$lib/db.server";
 import { excerpt, renderMarkdown } from "$lib/markdown.server";
 import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ params, locals }) => {
+  const prisma = locals.prisma;
   const isAdmin = locals.user?.role === "ADMIN";
 
   const post = await prisma.post.findUnique({

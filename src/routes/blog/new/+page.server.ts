@@ -1,7 +1,6 @@
 import { fail, redirect } from "@sveltejs/kit";
 import { requireAdmin } from "$lib/auth.server";
 import { readPostForm, PostValidationError } from "$lib/post.server";
-import { prisma } from "$lib/db.server";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async (event) => {
@@ -13,10 +12,11 @@ export const load: PageServerLoad = async (event) => {
 export const actions: Actions = {
   create: async (event) => {
     const user = requireAdmin(event);
+    const prisma = event.locals.prisma;
 
     let parsed;
     try {
-      parsed = await readPostForm(await event.request.formData());
+      parsed = await readPostForm(prisma, await event.request.formData());
     } catch (e) {
       if (e instanceof PostValidationError) {
         return fail(400, { errors: e.errors, values: e.values });

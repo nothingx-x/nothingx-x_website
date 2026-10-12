@@ -1,9 +1,9 @@
 import { error } from "@sveltejs/kit";
-import { prisma } from "$lib/db.server";
 import { sniffImageType } from "$lib/image";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async ({ params, locals, setHeaders }) => {
+  const prisma = locals.prisma;
   const post = await prisma.post.findUnique({
     where: { slug: params.slug },
     select: { thumbnailImageRaw: true, published: true },

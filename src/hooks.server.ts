@@ -1,18 +1,62 @@
 import type { Handle } from "@sveltejs/kit";
+import { env } from "$env/dynamic/private";
+import { createPrisma } from "$lib/db.server";
 import {
   getUserById,
   readSession,
   SESSION_COOKIE,
 } from "$lib/auth.server";
 
-export const handle: Handle = async ({ event, resolve }) => {
-  const token = event.cookies.get(SESSION_COOKIE);
-  event.locals.user = null;
+/**
+ * Reads the database connection string for this request.
+ *
+ * In production a Hyperdrive binding supplies a pooled connection string; those
+ * live on `platform.env`, not in `$env/dynamic/private`. Locally there is no
+ * platform object, so we fall back to `DATABASE_URL` from `.dev.vars`, which
+ * keeps `npm run dev` working against a local Postgres.
+ *
+ * The configured binding is named HYPERDRIVE_FRESH and should be created with
+ * `--caching-disabled`. Hyperdrive's default query cache holds read results for
+ * 60s and is not invalidated on write, which would serve stale user/role rows
+ * after a profile change and stale counts after a view or like.
+ *
+ * A second caching-enabled binding can be added later for public content reads
+ * that tolerate a short stale window.
+ */
+function connectionString(platform: App.Platform | undefined): string {
+  const url =
+    platform?.env?.HYPERDRIVE_FRESH?.connectionString ?? env.DATABASE_URL;
 
-  if (token) {
-    const userId = await readSession(token);
-    if (userId) event.locals.user = await getUserById(userId);
+  if (!url) {
+    throw new Error(
+      "No database connection string. Set DATABASE_URL in .dev.vars, " +
+        "or configure a HYPERDRIVE_FRESH binding for this Worker.",
+    );
   }
 
-  return resolve(event);
+  return url;
+}
+
+export const handle: Handle = async ({ event, resolve }) => {
+  const token = event.cookies.get(SESSION_COOKIE);
+
+  // adapter-cloudflare exposes the Workers bindings on event.platform
+  const platform = event.platform as App.Platform | undefined;
+
+  const prisma = createPrisma(connectionString(platform));
+  event.locals.prisma = prisma;
+  event.locals.user = null;
+
+  try {
+    if (token) {
+      const userId = await readSession(token);
+      if (userId) event.locals.user = await getUserById(prisma, userId);
+    }
+
+    return await resolve(event);
+  } finally {
+    // The pg driver holds a real TCP socket, so it must be released once the
+    // response is produced. waitUntil keeps this off the response path.
+    platform?.context?.waitUntil?.(prisma.$disconnect());
+  }
 };

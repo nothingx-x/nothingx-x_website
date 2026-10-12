@@ -1,13 +1,13 @@
 import { error, fail, redirect } from "@sveltejs/kit";
 import { requireAdmin } from "$lib/auth.server";
 import { readPostForm, PostValidationError } from "$lib/post.server";
-import { prisma } from "$lib/db.server";
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async (event) => {
   // guard BEFORE the lookup, so a non-admin can't probe which slugs exist
   requireAdmin(event);
 
+  const prisma = event.locals.prisma;
   const post = await prisma.post.findUnique({
     where: { slug: event.params.slug },
     select: {
@@ -45,6 +45,7 @@ export const actions: Actions = {
     // admins may edit any post, so the returned user isn't needed here
     requireAdmin(event);
 
+    const prisma = event.locals.prisma;
     const post = await prisma.post.findUnique({
       where: { slug: event.params.slug },
       select: { id: true },
@@ -54,7 +55,7 @@ export const actions: Actions = {
 
     let parsed;
     try {
-      parsed = await readPostForm(await event.request.formData(), {
+      parsed = await readPostForm(prisma, await event.request.formData(), {
         excludeId: post.id,
       });
     } catch (e) {

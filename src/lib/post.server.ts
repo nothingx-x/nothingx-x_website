@@ -1,4 +1,4 @@
-import { prisma } from "$lib/db.server";
+import type { Prisma } from "$lib/db.server";
 import { isReserved, isValidSlug, slugify, uniqueSlug } from "$lib/slug";
 import { MAX_UPLOAD_BYTES, sniffImageType } from "$lib/image";
 import { Category } from "../generated/prisma/enums.ts";
@@ -47,6 +47,7 @@ export interface ParsedPost {
  * `excludeId` lets an edit keep its own slug when nothing changed.
  */
 export async function readPostForm(
+  prisma: Prisma,
   form: FormData,
   { excludeId }: { excludeId?: number } = {},
 ): Promise<ParsedPost> {
@@ -69,7 +70,7 @@ export async function readPostForm(
   // typo in the title doesn't burn a database round trip.
   let thumbnail: Uint8Array<ArrayBuffer> | null = null;
   if (Object.keys(errors).length === 0) {
-    values.slug = await resolveSlug(requested, excludeId);
+    values.slug = await resolveSlug(prisma, requested, excludeId);
     thumbnail = await readThumbnail(form, errors);
   }
 
@@ -106,7 +107,11 @@ function validateScalarFields(values: PostValues, errors: PostErrors) {
   }
 }
 
-async function resolveSlug(requested: string, excludeId?: number): Promise<string> {
+async function resolveSlug(
+  prisma: Prisma,
+  requested: string,
+  excludeId?: number,
+): Promise<string> {
   return uniqueSlug(requested, async (candidate) => {
     const found = await prisma.post.findUnique({
       where: { slug: candidate },

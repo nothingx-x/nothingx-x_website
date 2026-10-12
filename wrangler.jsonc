@@ -1,31 +1,37 @@
 {
-	"name": "nothingx-x",
-	"main": ".svelte-kit/cloudflare/_worker.js",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"compatibility_date": "2026-08-23",
-	"assets": {
-		"binding": "ASSETS",
-		"directory": ".svelte-kit/cloudflare"
-	},
-	// Created with:
-	//   npx wrangler hyperdrive create nothingx-x-db \
-	//     --connection-string="postgres://..." --caching-disabled
-	//
-	// --caching-disabled is deliberate: Hyperdrive's query cache holds read
-	// results for 60s and is not invalidated on write, which would serve stale
-	// user/role rows after a profile change. Pooling and edge-local connection
-	// setup still apply with caching off.
-	"hyperdrive": [
-		{
-			"binding": "HYPERDRIVE",
-			"id": "8a310d5c325f4af0b32e24ee25609945",
-			// Used only by `wrangler dev`, which runs the Worker inside workerd.
-			// Hyperdrive cannot reach localhost, so point it at a local Postgres.
-			// Read from process.env rather than .dev.vars: applyHyperdriveEnvVars
-			// runs before .dev.vars is loaded as bindings.
-			"localConnectionString": "postgres://postgres:postgres@localhost:5432/nothingx-x"
-		}
-	]
+  "name": "nothingx-x",
+  "main": ".svelte-kit/cloudflare/_worker.js",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "compatibility_date": "2026-08-23",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".svelte-kit/cloudflare"
+  },
+  // Created with:
+  //   npx wrangler hyperdrive create nothingx-x-db \
+  //     --connection-string="postgres://..." --caching-disabled
+  //
+  // --caching-disabled is deliberate: Hyperdrive's query cache holds read
+  // results for 60s and is not invalidated on write, which would serve stale
+  // user/role rows after a profile change. Pooling and edge-local connection
+  // setup still apply with caching off.
+  "hyperdrive": [
+    {
+      "binding": "HYPERDRIVE",
+      "id": "8a310d5c325f4af0b32e24ee25609945",
+      // Used only by `wrangler dev`, which runs the Worker inside workerd.
+      // Hyperdrive cannot reach localhost, so point it at a local Postgres.
+      // Read from process.env rather than .dev.vars: applyHyperdriveEnvVars
+      // runs before .dev.vars is loaded as bindings.
+      "localConnectionString": "postgres://postgres:postgres@localhost:5432/nothingx-x"
+    }
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
+  }
 }

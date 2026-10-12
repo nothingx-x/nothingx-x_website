@@ -1,4 +1,5 @@
-const PBKDF2_ITERATIONS = 210_000;
+// worker don't support more than 100k
+const PBKDF2_ITERATIONS = 100_000;
 
 const encoder = new TextEncoder();
 
@@ -64,7 +65,7 @@ export async function verifyPassword(
 
   const rounds = Number(iterations);
   // deriveBits throws on a non-numeric or absurd iteration count, so gate it
-  if (!Number.isInteger(rounds) || rounds < 1 || rounds > 10_000_000) {
+  if (!Number.isInteger(rounds) || rounds < 1 || rounds > PBKDF2_ITERATIONS) {
     return false;
   }
 

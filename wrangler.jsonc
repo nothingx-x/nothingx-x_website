@@ -9,16 +9,23 @@
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
 	},
-	// Create these with:
-	//   npx wrangler hyperdrive create nothingx-x-db --connection-string="postgres://..."
-	// HYPERDRIVE caches read queries for 60s and does not invalidate on write,
-	// which is wrong for auth/admin reads and for the PostView counters.
+	// Created with:
+	//   npx wrangler hyperdrive create nothingx-x-db \
+	//     --connection-string="postgres://..." --caching-disabled
+	//
+	// --caching-disabled is deliberate: Hyperdrive's query cache holds read
+	// results for 60s and is not invalidated on write, which would serve stale
+	// user/role rows after a profile change. Pooling and edge-local connection
+	// setup still apply with caching off.
 	"hyperdrive": [
 		{
-			"binding": "HYPERDRIVE_FRESH",
+			"binding": "HYPERDRIVE",
 			"id": "8a310d5c325f4af0b32e24ee25609945",
+			// Used only by `wrangler dev`, which runs the Worker inside workerd.
+			// Hyperdrive cannot reach localhost, so point it at a local Postgres.
+			// Read from process.env rather than .dev.vars: applyHyperdriveEnvVars
+			// runs before .dev.vars is loaded as bindings.
 			"localConnectionString": "postgres://postgres:postgres@localhost:5432/nothingx-x"
 		}
-	],
-	"vars": {}
+	]
 }

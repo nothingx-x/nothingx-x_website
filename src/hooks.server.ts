@@ -15,22 +15,23 @@ import {
  * platform object, so we fall back to `DATABASE_URL` from `.dev.vars`, which
  * keeps `npm run dev` working against a local Postgres.
  *
- * The configured binding is named HYPERDRIVE_FRESH and should be created with
- * `--caching-disabled`. Hyperdrive's default query cache holds read results for
- * 60s and is not invalidated on write, which would serve stale user/role rows
- * after a profile change and stale counts after a view or like.
+ * The binding is configured with `--caching-disabled`, so reads are never
+ * served stale. Hyperdrive's default query cache holds results for 60s and is
+ * not invalidated on write, which would keep a changed `role` row in effect for
+ * up to a minute. Connection pooling still applies with caching off.
  *
- * A second caching-enabled binding can be added later for public content reads
- * that tolerate a short stale window.
+ * Under `wrangler dev` the binding resolves through `localConnectionString`
+ * (wrangler.jsonc), which points at localhost. The DATABASE_URL fallback covers
+ * `vite dev` runs where no platform object exists.
  */
 function connectionString(platform: App.Platform | undefined): string {
   const url =
-    platform?.env?.HYPERDRIVE_FRESH?.connectionString ?? env.DATABASE_URL;
+    platform?.env?.HYPERDRIVE?.connectionString ?? env.DATABASE_URL;
 
   if (!url) {
     throw new Error(
       "No database connection string. Set DATABASE_URL in .dev.vars, " +
-        "or configure a HYPERDRIVE_FRESH binding for this Worker.",
+        "or configure a HYPERDRIVE binding for this Worker.",
     );
   }
 

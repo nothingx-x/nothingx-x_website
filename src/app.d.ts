@@ -21,7 +21,7 @@ declare global {
 		 */
 		interface Platform {
 			env?: {
-				HYPERDRIVE_FRESH?: { connectionString: string };
+				HYPERDRIVE?: { connectionString: string };
 				[key: string]: unknown;
 			};
 			context?: {
